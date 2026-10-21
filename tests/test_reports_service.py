@@ -1,12 +1,19 @@
+import httpx
+import pytest
+from fastapi import FastAPI
+
 from storeops.core.events import (
+    ActivitiesBulkUpdated,
     ActivityCreated,
     ActivityDeleted,
+    ActivityStatusChange,
     ActivityUpdated,
     EventBus,
     ProgrammeCreated,
     ProgrammeMemberAdded,
 )
 from storeops.modules.reports import InMemoryMetricsRepository, ReportService
+from tests.headers import ALEX
 
 
 def make_service() -> tuple[ReportService, EventBus]:
@@ -87,3 +94,81 @@ def test_region_metrics_aggregate_stores() -> None:
     assert region.store_count == 3
     assert region.programmes_created == 3
     assert region.activities_created == 0
+
+
+def _bulk_event(store_id: str, status: str, activity_ids: tuple[str, ...]) -> ActivitiesBulkUpdated:
+    return ActivitiesBulkUpdated(
+        store_id=store_id,
+        updated_by="u",
+        status=status,
+        note=None,
+        changes=tuple(
+            ActivityStatusChange(activity_id=a, title="t", from_status="todo", assignee_id=None)
+            for a in activity_ids
+        ),
+    )
+
+
+def test_bulk_done_event_adds_one_completion_per_change() -> None:
+    """AC-3.1: an ActivitiesBulkUpdated with 2 done changes adds 2 completions to that store."""
+    service, bus = make_service()
+
+    bus.publish(_bulk_event("store-001", "done", ("a1", "a2")))
+
+    assert service.get_store_metrics("store-001").activities_completed == 2
+    assert service.get_store_metrics("store-002").activities_completed == 0
+
+
+def test_bulk_blocked_event_does_not_count_completions() -> None:
+    """AC-3.2: a bulk update to blocked leaves completion metrics untouched."""
+    service, bus = make_service()
+
+    bus.publish(_bulk_event("store-001", "blocked", ("a1", "a2")))
+
+    assert service.get_store_metrics("store-001").activities_completed == 0
+
+
+async def _create(client: httpx.AsyncClient, title: str) -> str:
+    response = await client.post("/api/activities", json={"title": title}, headers=ALEX)
+    activity_id: str = response.json()["id"]
+    return activity_id
+
+
+@pytest.mark.anyio
+async def test_bulk_done_over_http_counts_each_activity_once(
+    app: FastAPI, client: httpx.AsyncClient
+) -> None:
+    """AC-3.1: bulk PATCH to done counts 2 completions (not 4) and only in store-001."""
+    report_service: ReportService = app.state.report_service
+    a_id = await _create(client, "Restock aisle 4")
+    b_id = await _create(client, "Price check")
+    assert report_service.get_store_metrics("store-001").activities_completed == 0
+
+    response = await client.patch(
+        "/api/activities/bulk-status", json={"ids": [a_id, b_id], "status": "done"}, headers=ALEX
+    )
+
+    assert response.status_code == 200
+    assert report_service.get_store_metrics("store-001").activities_completed == 2
+    assert report_service.get_store_metrics("store-002").activities_completed == 0
+
+
+@pytest.mark.anyio
+async def test_bulk_blocked_over_http_keeps_completions_and_created(
+    app: FastAPI, client: httpx.AsyncClient
+) -> None:
+    """AC-3.2: bulk PATCH to blocked adds no completion and leaves activities_created at 2."""
+    report_service: ReportService = app.state.report_service
+    a_id = await _create(client, "Restock aisle 4")
+    b_id = await _create(client, "Price check")
+
+    response = await client.patch(
+        "/api/activities/bulk-status",
+        json={"ids": [a_id, b_id], "status": "blocked"},
+        headers=ALEX,
+    )
+
+    assert response.status_code == 200
+    metrics = report_service.get_store_metrics("store-001")
+    assert metrics.activities_completed == 0
+    assert metrics.activities_created == 2
