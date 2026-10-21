@@ -23,7 +23,11 @@ def create_app(*, staff_seed: Iterable[staff.StaffMember] = staff.DEMO_STAFF) ->
         programmes.InMemoryProgrammeRepository(), staff_service, bus
     )
     activity_service = activities.ActivityService(
-        activities.InMemoryActivityRepository(), staff_service, programme_service, bus
+        activities.InMemoryActivityRepository(),
+        staff_service,
+        programme_service,
+        bus,
+        audit_repo=activities.InMemoryActivityAuditRepository(),
     )
     alert_service = alerts.AlertService(alerts.InMemoryAlertRepository())
     alert_service.register(bus)

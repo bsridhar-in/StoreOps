@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from storeops.modules.activities.models import Activity, ActivityStatus
+from storeops.modules.activities.models import Activity, ActivityAuditEntry, ActivityStatus
 
 
 class ActivityRepository(Protocol):
@@ -53,3 +53,20 @@ class InMemoryActivityRepository:
 
     def delete(self, activity_id: str) -> None:
         self._items.pop(activity_id, None)
+
+
+class ActivityAuditRepository(Protocol):
+    def add(self, entry: ActivityAuditEntry) -> None: ...
+
+    def list_for_activity(self, activity_id: str) -> list[ActivityAuditEntry]: ...
+
+
+class InMemoryActivityAuditRepository:
+    def __init__(self) -> None:
+        self._items: list[ActivityAuditEntry] = []
+
+    def add(self, entry: ActivityAuditEntry) -> None:
+        self._items.append(entry)
+
+    def list_for_activity(self, activity_id: str) -> list[ActivityAuditEntry]:
+        return [e for e in self._items if e.activity_id == activity_id]

@@ -5,3 +5,4 @@ flagged for refinement (see `.harness/agents/monitor.agent.md`).
 
 | run_id | sprint | verdict | iterations | escalated | est. tokens | failed checks (all iters) | drift-flagged skills |
 |---|---|---|---|---|---|---|---|
+| 20261021-1057-shift-handover-bulk-status | 1 | PASS | 1 | no | 92258 | none | none |
