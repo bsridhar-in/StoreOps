@@ -1,0 +1,56 @@
+{
+  "_comment": "Machine-readable grading rubric. verdict.py computes the verdict from this file - the Evaluator never picks the verdict itself. Documented in SKILL.md next to this file. PROTECTED.",
+  "verdict_rules": {
+    "fail_if_any_hard_gate_fails": true,
+    "fail_below_score": 75,
+    "pass_min_score": 90,
+    "pass_forbids_failed_severity": ["major"]
+  },
+  "dimensions": [
+    {
+      "id": "D1",
+      "name": "Architecture compliance",
+      "weight": 40,
+      "checks": [
+        { "id": "A5", "type": "automated", "severity": "hard", "points": 20, "rule": "R1,R2,R4", "owner_skill": "architecture-principles", "title": "import-linter contracts all KEPT (repository encapsulation, event-bus-only consumers, layers)" },
+        { "id": "A6", "type": "automated", "severity": "hard", "points": 15, "rule": "R3", "owner_skill": "coding-conventions", "title": "Error contract: zero built-in / HTTPException raises in service or routes layers" },
+        { "id": "A11", "type": "automated", "severity": "hard", "points": 10, "rule": "R2", "owner_skill": "module-patterns", "title": "Every EMIT/HANDLE event in the sprint contract is defined, published and subscribed" },
+        { "id": "A12", "type": "automated", "severity": "hard", "points": 10, "rule": "harness", "owner_skill": "architecture-principles", "title": "No protected file changed unless the contract approves it" },
+        { "id": "L1", "type": "llm", "severity": "hard", "points": 15, "rule": "R2", "owner_skill": "module-patterns", "title": "Cross-module side effects are raised with bus.publish(<DomainEvent>) - no other module's service is called to write, notify or report" },
+        { "id": "L2", "type": "llm", "severity": "major", "points": 10, "rule": "R4", "owner_skill": "module-patterns", "title": "Routes only parse/auth/delegate/map; repositories only store/query; business rules live in the service" },
+        { "id": "L3", "type": "llm", "severity": "hard", "points": 10, "rule": "R5", "owner_skill": "architecture-principles", "title": "reports performs no write on activities/programmes/staff (reads go through reader Protocols only)" },
+        { "id": "L4", "type": "llm", "severity": "major", "points": 10, "rule": "R3", "owner_skill": "coding-conventions", "title": "Correct AppError subclass and domain error code per failure (cross-store = 404, permission = 403, rule violation = 409/422)" },
+        { "id": "L5", "type": "llm", "severity": "minor", "points": 10, "rule": "R1", "owner_skill": "module-patterns", "title": "New services/subscribers wired only in app.py; cross-module reads use a <Name>Reader Protocol exported from the package" }
+      ]
+    },
+    {
+      "id": "D2",
+      "name": "Functional correctness and test quality",
+      "weight": 35,
+      "checks": [
+        { "id": "A4", "type": "automated", "severity": "hard", "points": 20, "rule": "tests", "owner_skill": "how-to-test", "title": "Full pytest suite passes" },
+        { "id": "A7", "type": "automated", "severity": "hard", "points": 10, "rule": "coverage", "owner_skill": "how-to-test", "title": "Coverage: service >= 80%, routes >= 70%, core >= 60%, overall >= 70%" },
+        { "id": "A8", "type": "automated", "severity": "hard", "points": 10, "rule": "coverage", "owner_skill": "how-to-test", "title": "Every changed source file meets its own layer threshold" },
+        { "id": "A9", "type": "automated", "severity": "hard", "points": 10, "rule": "tests", "owner_skill": "how-to-test", "title": "No changed test function asserts only on status_code" },
+        { "id": "A10", "type": "automated", "severity": "hard", "points": 10, "rule": "tests", "owner_skill": "how-to-test", "title": "Every AC id in the sprint contract is referenced by at least one test" },
+        { "id": "L6", "type": "llm", "severity": "hard", "points": 20, "rule": "tests", "owner_skill": "how-to-test", "title": "Each AC's THEN clause is asserted on business state (body fields, follow-up GET, alerts/metrics, events) - not just the status code" },
+        { "id": "L7", "type": "llm", "severity": "major", "points": 10, "rule": "tests", "owner_skill": "how-to-test", "title": "Negative paths tested: missing auth, other-store isolation, validation, permission, partial failure where the contract requires it" },
+        { "id": "L8", "type": "llm", "severity": "major", "points": 5, "rule": "harness", "owner_skill": "how-to-review", "title": "generator-summary.md AC self-check and layer table match the code (no false PASS claims)" },
+        { "id": "L9", "type": "llm", "severity": "major", "points": 5, "rule": "scope", "owner_skill": "sprint-decomposition", "title": "Implementation matches contract scope: every AC implemented, nothing unrequested added" }
+      ]
+    },
+    {
+      "id": "D3",
+      "name": "Code quality and conventions",
+      "weight": 25,
+      "checks": [
+        { "id": "A1", "type": "automated", "severity": "hard", "points": 20, "rule": "lint", "owner_skill": "coding-conventions", "title": "ruff check . passes (includes TID251 HTTPException ban)" },
+        { "id": "A2", "type": "automated", "severity": "hard", "points": 10, "rule": "format", "owner_skill": "coding-conventions", "title": "ruff format --check . passes" },
+        { "id": "A3", "type": "automated", "severity": "hard", "points": 25, "rule": "types", "owner_skill": "coding-conventions", "title": "mypy --strict (pyproject config) passes" },
+        { "id": "L10", "type": "llm", "severity": "major", "points": 25, "rule": "conventions", "owner_skill": "coding-conventions", "title": "StoreOps conventions: schemas extra=forbid, *Create/*Update/*Out naming, StrEnum lowercase values, SCREAMING_SNAKE domain error codes, store scoping on every query" },
+        { "id": "L11", "type": "llm", "severity": "minor", "points": 10, "rule": "conventions", "owner_skill": "module-patterns", "title": "Repository = Protocol + InMemory implementation; service depends on the Protocol" },
+        { "id": "L12", "type": "llm", "severity": "minor", "points": 10, "rule": "conventions", "owner_skill": "coding-conventions", "title": "No dead code, print(), TODO without a known-gap entry, or commented-out code" }
+      ]
+    }
+  ]
+}

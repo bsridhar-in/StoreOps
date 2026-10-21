@@ -10,3 +10,7 @@ dist/
 .ruff_cache/
 .coverage
 htmlcov/
+
+# harness scratch (handoff files between agents; the audit trail is .harness/reviews/)
+.harness/output/*
+!.harness/output/.gitkeep

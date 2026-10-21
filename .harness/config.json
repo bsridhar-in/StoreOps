@@ -1,0 +1,30 @@
+{
+  "_comment": "Single source of truth for harness limits. PROTECTED: changing this file needs developer approval.",
+  "max_iterations_per_sprint": 3,
+  "coverage_thresholds": {
+    "service": { "min_line_pct": 80, "globs": ["src/storeops/modules/*/service.py", "src/storeops/modules/*/services/*.py"] },
+    "routes": { "min_line_pct": 70, "globs": ["src/storeops/modules/*/routes.py", "src/storeops/modules/*/routes/*.py"] },
+    "shared": { "min_line_pct": 60, "globs": ["src/storeops/core/*.py"] },
+    "overall": { "min_line_pct": 70, "globs": ["src/storeops/**/*.py"] }
+  },
+  "error_contract_layers": ["service", "routes"],
+  "protected_paths": [
+    "CLAUDE.md",
+    "pyproject.toml",
+    "tests/test_architecture.py",
+    "tests/conftest.py",
+    ".harness/agents/**",
+    ".harness/skills/**",
+    ".harness/scripts/**",
+    ".harness/templates/**",
+    ".harness/config.json",
+    ".claude/**",
+    ".github/**"
+  ],
+  "unprotected_harness_paths": [".harness/output/**", ".harness/reviews/**"],
+  "token_estimate": {
+    "chars_per_token": 4,
+    "agent_overhead_tokens": 6000,
+    "blended_usd_per_mtok": null
+  }
+}

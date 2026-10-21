@@ -19,6 +19,8 @@ dev = [
     "httpx>=0.27",
     "ruff>=0.6",
     "mypy>=1.11",
+    "pytest-cov>=5.0",
+    "import-linter>=2.1",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -35,6 +37,9 @@ line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
 
+[tool.ruff.format]
+exclude = ["*.md"]  # skill/template snippets are illustrative, not formatted source
+
 [tool.ruff.lint]
 select = [
     "E", "W",   # pycodestyle
@@ -48,7 +53,12 @@ select = [
     "PT",       # pytest style
     "ANN",      # annotations
     "ASYNC",    # async pitfalls
+    "TID251",   # banned APIs (see below) - part of the AppError contract
 ]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"fastapi.HTTPException".msg = "Raise an AppError subclass from storeops.core.errors instead"
+"starlette.exceptions.HTTPException".msg = "Raise an AppError subclass from storeops.core.errors instead"
 
 # ---------------------------------------------------------------- mypy
 [tool.mypy]
@@ -62,3 +72,101 @@ plugins = ["pydantic.mypy"]
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
+
+# ---------------------------------------------------------------- coverage
+# Per-layer thresholds are enforced by .harness/scripts/run_checks.py (check A7/A8).
+[tool.coverage.run]
+source = ["storeops"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:", '^\s*\.\.\.$']
+
+# ---------------------------------------------------------------- import-linter
+# Deterministic module-boundary gate (harness check A5). Run with: lint-imports
+# PROTECTED: changes here need an approved spec entry (see .harness/skills/architecture-principles).
+[tool.importlinter]
+root_package = "storeops"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+id = "R1-repository-encapsulation"
+name = "R1 Module boundary: no module imports another module's repository"
+type = "forbidden"
+source_modules = ["storeops.modules.programmes", "storeops.modules.staff", "storeops.modules.alerts", "storeops.modules.reports"]
+forbidden_modules = ["storeops.modules.activities.repository"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+id = "R1-repository-encapsulation-programmes"
+name = "R1 Module boundary: programmes.repository is private to programmes"
+type = "forbidden"
+source_modules = ["storeops.modules.activities", "storeops.modules.staff", "storeops.modules.alerts", "storeops.modules.reports"]
+forbidden_modules = ["storeops.modules.programmes.repository"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+id = "R1-repository-encapsulation-staff"
+name = "R1 Module boundary: staff.repository is private to staff"
+type = "forbidden"
+source_modules = ["storeops.modules.activities", "storeops.modules.programmes", "storeops.modules.alerts", "storeops.modules.reports"]
+forbidden_modules = ["storeops.modules.staff.repository"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+id = "R1-repository-encapsulation-alerts"
+name = "R1 Module boundary: alerts.repository is private to alerts"
+type = "forbidden"
+source_modules = ["storeops.modules.activities", "storeops.modules.programmes", "storeops.modules.staff", "storeops.modules.reports"]
+forbidden_modules = ["storeops.modules.alerts.repository"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+id = "R1-repository-encapsulation-reports"
+name = "R1 Module boundary: reports.repository is private to reports"
+type = "forbidden"
+source_modules = ["storeops.modules.activities", "storeops.modules.programmes", "storeops.modules.staff", "storeops.modules.alerts"]
+forbidden_modules = ["storeops.modules.reports.repository"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+id = "R2-event-bus-only"
+name = "R2 Event bus only: no module imports alerts or reports (subscribe via core.events)"
+type = "forbidden"
+source_modules = ["storeops.modules.activities", "storeops.modules.programmes", "storeops.modules.staff"]
+forbidden_modules = ["storeops.modules.alerts", "storeops.modules.reports"]
+
+[[tool.importlinter.contracts]]
+id = "R2-event-bus-only-consumers"
+name = "R2 Event bus only: alerts and reports never import each other"
+type = "independence"
+modules = ["storeops.modules.alerts", "storeops.modules.reports"]
+
+[[tool.importlinter.contracts]]
+id = "R4-layers"
+name = "R4 Layer separation: routes -> service -> repository inside every module"
+type = "layers"
+containers = ["storeops.modules.activities", "storeops.modules.programmes", "storeops.modules.staff", "storeops.modules.alerts", "storeops.modules.reports"]
+layers = ["routes", "service", "repository"]
+
+[[tool.importlinter.contracts]]
+id = "R4-no-layer-skipping"
+name = "R4 Layer separation: routes never import a repository directly"
+type = "forbidden"
+source_modules = ["storeops.modules.*.routes"]
+forbidden_modules = ["storeops.modules.*.repository"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+id = "R4-repositories-are-pure-data-access"
+name = "R4 Layer separation: repositories never touch HTTP or the event bus directly"
+type = "forbidden"
+source_modules = ["storeops.modules.*.repository"]
+forbidden_modules = ["fastapi", "starlette", "httpx", "storeops.core.events", "storeops.core.http"]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+id = "core-independence"
+name = "core never imports feature modules"
+type = "forbidden"
+source_modules = ["storeops.core"]
+forbidden_modules = ["storeops.modules"]

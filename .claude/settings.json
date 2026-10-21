@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python .harness/scripts/run_checks.py:*)",
+      "Bash(.venv/Scripts/python .harness/scripts/verdict.py:*)",
+      "Bash(.venv/Scripts/python .harness/scripts/route.py:*)",
+      "Bash(.venv/Scripts/python -m pytest:*)",
+      "Bash(.venv/Scripts/ruff:*)",
+      "Bash(.venv/Scripts/mypy:*)",
+      "Bash(.venv/Scripts/lint-imports:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git switch -c harness/:*)",
+      "Bash(git add -A)",
+      "Bash(git commit -m \"harness(:*)",
+      "Edit(src/**)",
+      "Edit(tests/**)",
+      "Edit(.harness/output/**)",
+      "Edit(.harness/reviews/**)",
+      "Write(src/**)",
+      "Write(tests/**)",
+      "Write(.harness/output/**)",
+      "Write(.harness/reviews/**)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)"
+    ]
+  }
+}

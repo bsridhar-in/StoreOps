@@ -21,7 +21,17 @@ pytest          # tests (pytest + httpx ASGITransport)
 ruff check .    # lint
 ruff format --check .
 mypy            # strict type checking
+lint-imports    # module-boundary contracts (pyproject [tool.importlinter])
+python .harness/scripts/run_checks.py --ci   # all of the above + coverage thresholds (CI gate)
 ```
+
+## AI development harness
+
+AI-assisted changes run through a Planner -> Generator <-> Evaluator -> Monitor harness
+orchestrated by [`CLAUDE.md`](CLAUDE.md). In Claude Code: `@planner <feature>`, review
+`.harness/output/spec.md`, type `APPROVED`. Agents: `.harness/agents/`, skills:
+`.harness/skills/`, rubric: `.harness/skills/grading-criteria/rubric.json`, audit trail:
+`.harness/reviews/`.
 
 ## Authentication (stub)
 
