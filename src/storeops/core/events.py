@@ -44,6 +44,24 @@ class ActivityUpdated(DomainEvent):
 
 
 @dataclass(frozen=True, kw_only=True)
+class ActivityStatusChange:
+    """One activity changed by a bulk status update (payload of ``ActivitiesBulkUpdated``)."""
+
+    activity_id: str
+    title: str
+    from_status: str
+    assignee_id: str | None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ActivitiesBulkUpdated(DomainEvent):
+    updated_by: str
+    status: str
+    note: str | None
+    changes: tuple[ActivityStatusChange, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
 class ActivityDeleted(DomainEvent):
     activity_id: str
     deleted_by: str

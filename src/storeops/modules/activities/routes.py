@@ -1,13 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 
 from storeops.core.auth import Auth
 from storeops.modules.activities.models import ActivityStatus
 from storeops.modules.activities.schemas import (
+    ActivityAuditEntryOut,
     ActivityCreate,
     ActivityOut,
     ActivityUpdate,
+    BulkStatusResultOut,
+    BulkStatusUpdate,
     TemplateCloneOut,
     TemplateCloneRequest,
 )
@@ -41,9 +44,30 @@ async def create_activity(body: ActivityCreate, ctx: Auth, service: Service) -> 
     return ActivityOut.model_validate(service.create_activity(ctx, body))
 
 
+# Literal path declared before "/{activity_id}" so it is not captured as an activity id.
+@router.patch("/bulk-status")
+async def bulk_update_status(
+    body: BulkStatusUpdate, ctx: Auth, service: Service, response: Response
+) -> BulkStatusResultOut:
+    result = BulkStatusResultOut.model_validate(
+        service.bulk_update_status(ctx, body.ids, body.status, body.note)
+    )
+    if result.failed_count > 0:
+        response.status_code = 207
+    return result
+
+
 @router.get("/{activity_id}")
 async def get_activity(activity_id: str, ctx: Auth, service: Service) -> ActivityOut:
     return ActivityOut.model_validate(service.get_activity(ctx, activity_id))
+
+
+@router.get("/{activity_id}/audit")
+async def list_activity_audit(
+    activity_id: str, ctx: Auth, service: Service
+) -> list[ActivityAuditEntryOut]:
+    entries = service.list_audit_entries(ctx, activity_id)
+    return [ActivityAuditEntryOut.model_validate(e) for e in entries]
 
 
 @router.patch("/{activity_id}")

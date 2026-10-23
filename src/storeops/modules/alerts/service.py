@@ -4,7 +4,13 @@ from __future__ import annotations
 
 from storeops.core.auth import AuthContext
 from storeops.core.clock import utcnow
-from storeops.core.events import ActivityCreated, ActivityUpdated, EventBus, ProgrammeMemberAdded
+from storeops.core.events import (
+    ActivitiesBulkUpdated,
+    ActivityCreated,
+    ActivityUpdated,
+    EventBus,
+    ProgrammeMemberAdded,
+)
 from storeops.core.ids import new_id
 from storeops.modules.alerts.models import Alert, AlertType
 from storeops.modules.alerts.repository import AlertRepository
@@ -17,6 +23,7 @@ class AlertService:
     def register(self, bus: EventBus) -> None:
         bus.subscribe(ActivityCreated, self._on_activity_created)
         bus.subscribe(ActivityUpdated, self._on_activity_updated)
+        bus.subscribe(ActivitiesBulkUpdated, self._on_activities_bulk_updated)
         bus.subscribe(ProgrammeMemberAdded, self._on_programme_member_added)
 
     def list_for_user(self, ctx: AuthContext, *, unread_only: bool = False) -> list[Alert]:
@@ -54,6 +61,17 @@ class AlertService:
                 f"'{event.title}' is now {event.status}",
                 event.activity_id,
             )
+
+    def _on_activities_bulk_updated(self, event: ActivitiesBulkUpdated) -> None:
+        for change in event.changes:
+            if change.assignee_id and change.assignee_id != event.updated_by:
+                self._raise_alert(
+                    event.store_id,
+                    change.assignee_id,
+                    AlertType.ACTIVITY_STATUS_CHANGED,
+                    f"'{change.title}' is now {event.status}",
+                    change.activity_id,
+                )
 
     def _on_programme_member_added(self, event: ProgrammeMemberAdded) -> None:
         if event.staff_id != event.added_by:

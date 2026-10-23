@@ -2,7 +2,12 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from storeops.modules.activities.models import ActivityCategory, ActivityPriority, ActivityStatus
+from storeops.modules.activities.models import (
+    ActivityCategory,
+    ActivityPriority,
+    ActivityStatus,
+    BulkStatusOutcome,
+)
 
 
 class ActivityCreate(BaseModel):
@@ -57,3 +62,48 @@ class TemplateCloneOut(BaseModel):
     programme_id: str
     template_key: str
     activities: list[ActivityOut]
+
+
+class BulkStatusUpdate(BaseModel):
+    """Shift handover: set several activities to one status.
+
+    The id count and allowed target statuses are business rules checked in the service so
+    they return their own error codes.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    ids: list[str]
+    status: ActivityStatus
+    note: str | None = Field(default=None, max_length=500)
+
+
+class BulkStatusItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    outcome: BulkStatusOutcome
+    code: str | None
+    activity: ActivityOut | None
+
+
+class BulkStatusResultOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    status: ActivityStatus
+    updated_count: int
+    failed_count: int
+    results: list[BulkStatusItemOut]
+
+
+class ActivityAuditEntryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    activity_id: str
+    actor_id: str
+    from_status: ActivityStatus
+    to_status: ActivityStatus
+    note: str | None
+    source: str
+    created_at: datetime

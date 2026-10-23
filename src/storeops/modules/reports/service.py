@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from storeops.core.events import (
+    ActivitiesBulkUpdated,
     ActivitiesTemplateCloned,
     ActivityCreated,
     ActivityDeleted,
@@ -26,6 +27,7 @@ class ReportService:
     def register(self, bus: EventBus) -> None:
         bus.subscribe(ActivityCreated, self._on_activity_created)
         bus.subscribe(ActivityUpdated, self._on_activity_updated)
+        bus.subscribe(ActivitiesBulkUpdated, self._on_activities_bulk_updated)
         bus.subscribe(ActivityDeleted, self._on_activity_deleted)
         bus.subscribe(ProgrammeCreated, self._on_programme_created)
         bus.subscribe(ProgrammeMemberAdded, self._on_programme_member_added)
@@ -57,6 +59,12 @@ class ReportService:
         if "status" in event.changed_fields and event.status == _DONE_STATUS:
             metrics = self.get_store_metrics(event.store_id)
             metrics.activities_completed += 1
+            self._repo.save(metrics)
+
+    def _on_activities_bulk_updated(self, event: ActivitiesBulkUpdated) -> None:
+        if event.status == _DONE_STATUS and event.changes:
+            metrics = self.get_store_metrics(event.store_id)
+            metrics.activities_completed += len(event.changes)
             self._repo.save(metrics)
 
     def _on_activity_deleted(self, event: ActivityDeleted) -> None:
