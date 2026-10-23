@@ -64,6 +64,14 @@ class ProgrammeMemberAdded(DomainEvent):
     added_by: str
 
 
+@dataclass(frozen=True, kw_only=True)
+class ActivitiesTemplateCloned(DomainEvent):
+    programme_id: str
+    template_key: str
+    activity_ids: tuple[str, ...]
+    created_by: str
+
+
 class EventBus:
     """Synchronous, in-process publish/subscribe.
 

@@ -1,0 +1,124 @@
+{
+  "sprint": 1,
+  "iteration": 1,
+  "checks": [
+    {
+      "id": "L1",
+      "result": "PASS",
+      "reason": "clone_template_into_programme writes all Activity records to the repository first, then publishes exactly one ActivitiesTemplateCloned event; no other module's service or Reader is used to write.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/service.py", "line": 148,
+         "quote": "self._repo.add(activity)", "fix": "n/a"},
+        {"file": "src/storeops/modules/activities/service.py", "line": 160,
+         "quote": "self._bus.publish(\n            ActivitiesTemplateCloned(", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L2",
+      "result": "PASS",
+      "reason": "No routes.py or repository.py changed this sprint (service-level only, per contract). The new service method contains only validation, load-through-Reader, construction, repository writes, and one event publish - no HTTP/route or storage-layer code mixed in.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/service.py", "line": 130,
+         "quote": "def clone_template_into_programme(\n        self, ctx: AuthContext, programme_id: str, template_key: str\n    ) -> list[Activity]:", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L3",
+      "result": "PASS",
+      "reason": "modules/reports is not touched by this diff.",
+      "evidence": [
+        {"file": "git status --porcelain", "line": 0,
+         "quote": "no reports/ files listed", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L4",
+      "result": "PASS",
+      "reason": "NotFoundError(code=\"PROGRAMME_NOT_FOUND\") used for both unknown programme id and cross-store programme id (existence never revealed, matches R3 table and app-context store-isolation rule); ValidationError(code=\"UNKNOWN_TEMPLATE_KEY\") used for the unknown template_key, a body-semantics error. Both codes are SCREAMING_SNAKE and domain-prefixed.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/service.py", "line": 132,
+         "quote": "raise NotFoundError(f\"Programme '{programme_id}' not found\", code=\"PROGRAMME_NOT_FOUND\")", "fix": "n/a"},
+        {"file": "src/storeops/modules/activities/service.py", "line": 134,
+         "quote": "raise ValidationError(\n                f\"Template '{template_key}' does not exist\", code=\"UNKNOWN_TEMPLATE_KEY\"\n            )", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L5",
+      "result": "PASS",
+      "reason": "No new service/subscriber constructed anywhere outside app.py (the method is added to the existing ActivityService class, which app.py already wires). The cross-module read uses the already-exported ProgrammeReader.exists_in_store Protocol method, not a repository import. No protected-file edits were made.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/service.py", "line": 132,
+         "quote": "self._programmes.exists_in_store(programme_id, ctx.store_id)", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L6",
+      "result": "PASS",
+      "reason": "Each AC's THEN clause is asserted on business state, not just a status code (there is no HTTP layer this sprint): AC-1.1 asserts exact field values on all 4 created Activity objects in catalog order, a follow-up get_activity() read, and the single published event's fields; AC-1.2/1.3 assert the raised error code plus list_activities() is empty and no event received; AC-1.4 asserts the error code plus no activity/no event. Deleting the new service branch would make every one of these assertions fail.",
+      "evidence": [
+        {"file": "tests/test_activities_service.py", "line": 47,
+         "quote": "assert len(created) == 4", "fix": "n/a"},
+        {"file": "tests/test_activities_service.py", "line": 63,
+         "quote": "assert len(received) == 1", "fix": "n/a"},
+        {"file": "tests/test_activities_service.py", "line": 83,
+         "quote": "assert activity_service.list_activities(ALEX_CTX) == []", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L7",
+      "result": "PASS",
+      "reason": "This sprint adds no endpoint (route is sprint 2, explicitly out of scope), so the auth-header negative path does not apply yet. The negative paths that do apply at the service layer - unknown resource (AC-1.2), other-store isolation (AC-1.3), and invalid body/key (AC-1.4) - are each tested with an exact error code and a verified empty side-effect (no activity created, no event published). No partial-failure or permission rule applies to this method.",
+      "evidence": [
+        {"file": "tests/test_activities_service.py", "line": 97,
+         "quote": "exc_info.value.code == \"PROGRAMME_NOT_FOUND\"", "fix": "n/a"},
+        {"file": "tests/test_activities_service.py", "line": 115,
+         "quote": "exc_info.value.code == \"UNKNOWN_TEMPLATE_KEY\"", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L8",
+      "result": "PASS",
+      "reason": "Every AC row marked PASS in generator-summary.md cites a test that exists and does prove the AC (verified above), and the files table lists all five changed files with the correct layer (model, model/data, service, shared, test) matching the actual diff.",
+      "evidence": [
+        {"file": ".harness/output/generator-summary.md", "line": 6,
+         "quote": "| AC-1.1 | PASS | `tests/test_activities_service.py::test_clone_creates_the_standard_planogram_task_set` |", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L9",
+      "result": "PASS",
+      "reason": "All four ACs are implemented and nothing beyond contract scope was added: no route, no reports/alerts subscriber, no extra template keys, exactly matching 'Out of scope'.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/templates.py", "line": 26,
+         "quote": "PLANOGRAM_TEMPLATES: dict[str, tuple[PlanogramTaskDefinition, ...]] = {\n    \"standard_planogram_reset\": (", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L10",
+      "result": "PASS",
+      "reason": "No new schemas this sprint (none required). StrEnum member PLANOGRAM uses an UPPER name with lowercase value \"planogram\". Error codes are SCREAMING_SNAKE and domain-prefixed. The only query (exists_in_store) is scoped by store_id. PlanogramTaskDefinition is a plain frozen dataclass per models.py conventions, not a schema, so Create/Update/Out naming does not apply.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/models.py", "line": 26,
+         "quote": "PLANOGRAM = \"planogram\"", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L11",
+      "result": "PASS",
+      "reason": "No new repository introduced this sprint; the existing InMemoryActivityRepository is reused via the Protocol it already implements.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/service.py", "line": 148,
+         "quote": "self._repo.add(activity)", "fix": "n/a"}
+      ]
+    },
+    {
+      "id": "L12",
+      "result": "PASS",
+      "reason": "No print(), no commented-out code, no TODOs, and no unused helpers in the diff; generator-summary.md's Known gaps section correctly notes the only deferred items (route, reports handling) as out-of-scope for this sprint rather than hidden TODOs.",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/templates.py", "line": 1,
+         "quote": "\"\"\"Fixed in-code catalog of planogram task templates.", "fix": "n/a"}
+      ]
+    }
+  ]
+}

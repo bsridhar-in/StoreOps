@@ -1,0 +1,248 @@
+{
+  "sprint": 1,
+  "iteration": 1,
+  "verdict": "PASS",
+  "score": 100.0,
+  "dimensions": [
+    {
+      "id": "D1",
+      "name": "Architecture compliance",
+      "weight": 40,
+      "score": 100.0
+    },
+    {
+      "id": "D2",
+      "name": "Functional correctness and test quality",
+      "weight": 35,
+      "score": 100.0
+    },
+    {
+      "id": "D3",
+      "name": "Code quality and conventions",
+      "weight": 25,
+      "score": 100.0
+    }
+  ],
+  "hard_gates_failed": [],
+  "failed_checks": [],
+  "checks": [
+    {
+      "id": "A5",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "import-linter: Contracts: 11 kept, 0 broken."
+    },
+    {
+      "id": "A6",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 15,
+      "result": "PASS",
+      "reason": "error contract: 0 raw raise(s) in service/routes"
+    },
+    {
+      "id": "A11",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "event wiring: 1 EMIT, 0 HANDLE, 0 missing"
+    },
+    {
+      "id": "A12",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "protected files: 0 unapproved; approved = none"
+    },
+    {
+      "id": "L1",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "hard",
+      "points": 15,
+      "result": "PASS",
+      "reason": "clone_template_into_programme writes all Activity records to the repository first, then publishes exactly one ActivitiesTemplateCloned event; no other module's service or Reader is used to write."
+    },
+    {
+      "id": "L2",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No routes.py or repository.py changed this sprint (service-level only, per contract). The new service method contains only validation, load-through-Reader, construction, repository writes, and one event publish - no HTTP/route or storage-layer code mixed in."
+    },
+    {
+      "id": "L3",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "modules/reports is not touched by this diff."
+    },
+    {
+      "id": "L4",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "NotFoundError(code=\"PROGRAMME_NOT_FOUND\") used for both unknown programme id and cross-store programme id (existence never revealed, matches R3 table and app-context store-isolation rule); ValidationError(code=\"UNKNOWN_TEMPLATE_KEY\") used for the unknown template_key, a body-semantics error. Both codes are SCREAMING_SNAKE and domain-prefixed."
+    },
+    {
+      "id": "L5",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No new service/subscriber constructed anywhere outside app.py (the method is added to the existing ActivityService class, which app.py already wires). The cross-module read uses the already-exported ProgrammeReader.exists_in_store Protocol method, not a repository import. No protected-file edits were made."
+    },
+    {
+      "id": "A4",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "pytest: 59 passed in 5.42s"
+    },
+    {
+      "id": "A7",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "coverage: service 99.0% (min 80), routes 94.4% (min 70), shared 98.6% (min 60), overall 98.5% (min 70)"
+    },
+    {
+      "id": "A8",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "changed-file coverage: 4 file(s) checked"
+    },
+    {
+      "id": "A9",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "assertion quality: 1 changed test file(s), 0 status-only test(s)"
+    },
+    {
+      "id": "A10",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "AC traceability: 4/4 ACs referenced"
+    },
+    {
+      "id": "L6",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "Each AC's THEN clause is asserted on business state, not just a status code (there is no HTTP layer this sprint): AC-1.1 asserts exact field values on all 4 created Activity objects in catalog order, a follow-up get_activity() read, and the single published event's fields; AC-1.2/1.3 assert the raised error code plus list_activities() is empty and no event received; AC-1.4 asserts the error code plus no activity/no event. Deleting the new service branch would make every one of these assertions fail."
+    },
+    {
+      "id": "L7",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "This sprint adds no endpoint (route is sprint 2, explicitly out of scope), so the auth-header negative path does not apply yet. The negative paths that do apply at the service layer - unknown resource (AC-1.2), other-store isolation (AC-1.3), and invalid body/key (AC-1.4) - are each tested with an exact error code and a verified empty side-effect (no activity created, no event published). No partial-failure or permission rule applies to this method."
+    },
+    {
+      "id": "L8",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 5,
+      "result": "PASS",
+      "reason": "Every AC row marked PASS in generator-summary.md cites a test that exists and does prove the AC (verified above), and the files table lists all five changed files with the correct layer (model, model/data, service, shared, test) matching the actual diff."
+    },
+    {
+      "id": "L9",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 5,
+      "result": "PASS",
+      "reason": "All four ACs are implemented and nothing beyond contract scope was added: no route, no reports/alerts subscriber, no extra template keys, exactly matching 'Out of scope'."
+    },
+    {
+      "id": "A1",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "ruff check: clean"
+    },
+    {
+      "id": "A2",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "ruff format: clean"
+    },
+    {
+      "id": "A3",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 25,
+      "result": "PASS",
+      "reason": "mypy --strict: clean"
+    },
+    {
+      "id": "L10",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "major",
+      "points": 25,
+      "result": "PASS",
+      "reason": "No new schemas this sprint (none required). StrEnum member PLANOGRAM uses an UPPER name with lowercase value \"planogram\". Error codes are SCREAMING_SNAKE and domain-prefixed. The only query (exists_in_store) is scoped by store_id. PlanogramTaskDefinition is a plain frozen dataclass per models.py conventions, not a schema, so Create/Update/Out naming does not apply."
+    },
+    {
+      "id": "L11",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No new repository introduced this sprint; the existing InMemoryActivityRepository is reused via the Protocol it already implements."
+    },
+    {
+      "id": "L12",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No print(), no commented-out code, no TODOs, and no unused helpers in the diff; generator-summary.md's Known gaps section correctly notes the only deferred items (route, reports handling) as out-of-scope for this sprint rather than hidden TODOs."
+    }
+  ],
+  "fallback": false,
+  "warnings": []
+}

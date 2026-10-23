@@ -5,11 +5,18 @@ from dataclasses import replace
 from storeops.core.auth import AuthContext
 from storeops.core.clock import utcnow
 from storeops.core.errors import ForbiddenError, NotFoundError, ValidationError
-from storeops.core.events import ActivityCreated, ActivityDeleted, ActivityUpdated, EventBus
+from storeops.core.events import (
+    ActivitiesTemplateCloned,
+    ActivityCreated,
+    ActivityDeleted,
+    ActivityUpdated,
+    EventBus,
+)
 from storeops.core.ids import new_id
-from storeops.modules.activities.models import Activity, ActivityStatus
+from storeops.modules.activities.models import Activity, ActivityCategory, ActivityStatus
 from storeops.modules.activities.repository import ActivityRepository
 from storeops.modules.activities.schemas import ActivityCreate, ActivityUpdate
+from storeops.modules.activities.templates import PLANOGRAM_TEMPLATES
 from storeops.modules.programmes import ProgrammeReader
 from storeops.modules.staff import StaffReader
 
@@ -119,6 +126,49 @@ class ActivityService:
         self._bus.publish(
             ActivityDeleted(store_id=ctx.store_id, activity_id=activity.id, deleted_by=ctx.user_id)
         )
+
+    def clone_template_into_programme(
+        self, ctx: AuthContext, programme_id: str, template_key: str
+    ) -> list[Activity]:
+        if not self._programmes.exists_in_store(programme_id, ctx.store_id):
+            raise NotFoundError(f"Programme '{programme_id}' not found", code="PROGRAMME_NOT_FOUND")
+        definitions = PLANOGRAM_TEMPLATES.get(template_key)
+        if definitions is None:
+            raise ValidationError(
+                f"Template '{template_key}' does not exist", code="UNKNOWN_TEMPLATE_KEY"
+            )
+
+        now = utcnow()
+        created: list[Activity] = []
+        for definition in definitions:
+            activity = Activity(
+                id=new_id("act"),
+                store_id=ctx.store_id,
+                title=definition.title,
+                description=definition.description,
+                status=ActivityStatus.TODO,
+                priority=definition.priority,
+                category=ActivityCategory.PLANOGRAM,
+                programme_id=programme_id,
+                assignee_id=None,
+                created_by=ctx.user_id,
+                created_at=now,
+                updated_at=now,
+                department=definition.department,
+            )
+            self._repo.add(activity)
+            created.append(activity)
+
+        self._bus.publish(
+            ActivitiesTemplateCloned(
+                store_id=ctx.store_id,
+                programme_id=programme_id,
+                template_key=template_key,
+                activity_ids=tuple(a.id for a in created),
+                created_by=ctx.user_id,
+            )
+        )
+        return created
 
     def _ensure_assignable(self, ctx: AuthContext, assignee_id: str | None) -> None:
         if assignee_id is not None and not self._staff.is_member_of_store(

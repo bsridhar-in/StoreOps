@@ -23,6 +23,7 @@ class ActivityCategory(StrEnum):
     CUSTOMER_SERVICE = "customer_service"
     COMPLIANCE = "compliance"
     MAINTENANCE = "maintenance"
+    PLANOGRAM = "planogram"
     OTHER = "other"
 
 
@@ -40,3 +41,4 @@ class Activity:
     created_by: str
     created_at: datetime
     updated_at: datetime
+    department: str | None = None
