@@ -1,0 +1,122 @@
+{
+  "sprint": 2,
+  "iteration": 1,
+  "checks": [
+    {
+      "id": "L1",
+      "result": "PASS",
+      "reason": "reports reacts to ActivitiesTemplateCloned via bus.subscribe and only writes its own repository; no direct cross-module service call",
+      "evidence": [
+        {"file": "src/storeops/modules/reports/service.py", "line": 32,
+         "quote": "bus.subscribe(ActivitiesTemplateCloned, self._on_activities_template_cloned)"},
+        {"file": "src/storeops/modules/reports/service.py", "line": 76,
+         "quote": "def _on_activities_template_cloned(self, event: ActivitiesTemplateCloned) -> None:"}
+      ]
+    },
+    {
+      "id": "L2",
+      "result": "PASS",
+      "reason": "new route handler only parses body/path, takes ctx, calls exactly one service method, and maps the result to the response model",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/routes.py", "line": 63,
+         "quote": "activities = service.clone_template_into_programme(ctx, programme_id, body.template_key)\n    return TemplateCloneOut("}
+      ]
+    },
+    {
+      "id": "L3",
+      "result": "PASS",
+      "reason": "the only reports change is _on_activities_template_cloned, which calls self.get_store_metrics (own reader) and self._repo.save (own repository); no mutating call into activities/programmes/staff and no event published back",
+      "evidence": [
+        {"file": "src/storeops/modules/reports/service.py", "line": 76,
+         "quote": "metrics.templates_applied += 1\n        metrics.activities_created += len(event.activity_ids)\n        self._repo.save(metrics)"}
+      ]
+    },
+    {
+      "id": "L4",
+      "result": "PASS",
+      "reason": "no new `raise` statement is added in this diff; the route/service code paths exercised by the new endpoint reuse sprint-1 raises (NotFoundError/PROGRAMME_NOT_FOUND, ValidationError/UNKNOWN_TEMPLATE_KEY) which are out of scope for this sprint's diff",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/routes.py", "line": 60,
+         "quote": "async def clone_template_into_programme("}
+      ]
+    },
+    {
+      "id": "L5",
+      "result": "PASS",
+      "reason": "the new router is wired only in app.py (added to the router tuple); no new service/subscriber is constructed outside app.py; reports already held its own ReportService instance and only gained one more bus.subscribe line inside the existing register() method; no new cross-module Reader was introduced",
+      "evidence": [
+        {"file": "src/storeops/app.py", "line": 43,
+         "quote": "activities.templates_router,"}
+      ]
+    },
+    {
+      "id": "L6",
+      "result": "PASS",
+      "reason": "each AC's THEN clause is asserted on business state, not just status code",
+      "evidence": [
+        {"file": "tests/test_activities_api.py", "line": 213,
+         "quote": "assert (activity[\"category\"], activity[\"status\"], activity[\"assignee_id\"]) == (\n            \"planogram\",\n            \"todo\",\n            None,\n        )", "fix": "N/A - PASS"},
+        {"file": "tests/test_activities_api.py", "line": 235,
+         "quote": "assert response.json()[\"error\"][\"code\"] == \"PROGRAMME_NOT_FOUND\"", "fix": "N/A - PASS"},
+        {"file": "tests/test_activities_api.py", "line": 271,
+         "quote": "assert after_second.templates_applied == 2", "fix": "N/A - PASS"}
+      ]
+    },
+    {
+      "id": "L7",
+      "result": "PASS",
+      "reason": "no-auth (AC-2.3), other-store isolation (AC-2.2), and invalid body/enum (AC-2.4) are each tested with an exact error code; no permission rule or partial-failure case applies to this single-shot clone endpoint",
+      "evidence": [
+        {"file": "tests/test_activities_api.py", "line": 241,
+         "quote": "assert response.status_code == 401\n    assert response.json()[\"error\"][\"code\"] == \"UNAUTHORIZED\""}
+      ]
+    },
+    {
+      "id": "L8",
+      "result": "PASS",
+      "reason": "every AC row in generator-summary.md cites a test that exists verbatim in tests/test_activities_api.py, and the files table lists the correct layer for each changed file",
+      "evidence": [
+        {"file": ".harness/output/generator-summary.md", "line": 6,
+         "quote": "AC-2.1 | PASS | `tests/test_activities_api.py::test_clone_template_creates_four_planogram_activities`"}
+      ]
+    },
+    {
+      "id": "L9",
+      "result": "PASS",
+      "reason": "implementation covers exactly the contract scope: TemplateCloneRequest/Out, department field, new router, reports counters; no alerts handling, no public reports endpoint, no RegionMetrics change was added, matching 'Out of scope'",
+      "evidence": [
+        {"file": "src/storeops/modules/reports/service.py", "line": 76,
+         "quote": "def _on_activities_template_cloned"}
+      ]
+    },
+    {
+      "id": "L10",
+      "result": "PASS",
+      "reason": "TemplateCloneRequest uses extra=forbid, TemplateCloneOut uses from_attributes=True, both follow *Request/*Out naming; new StoreMetrics field defaults to 0 like its siblings; reports handler scopes by event.store_id for every lookup/save",
+      "evidence": [
+        {"file": "src/storeops/modules/activities/schemas.py", "line": 50,
+         "quote": "model_config = ConfigDict(extra=\"forbid\")"},
+        {"file": "src/storeops/modules/activities/schemas.py", "line": 56,
+         "quote": "model_config = ConfigDict(from_attributes=True)"}
+      ]
+    },
+    {
+      "id": "L11",
+      "result": "PASS",
+      "reason": "no new repository is introduced in this diff (reports/models.py and reports/service.py only; repository.py untouched)",
+      "evidence": [
+        {"file": "src/storeops/modules/reports/service.py", "line": 1,
+         "quote": "no changes to repository.py in this sprint diff"}
+      ]
+    },
+    {
+      "id": "L12",
+      "result": "PASS",
+      "reason": "no print/commented-out code/unlisted TODO in the diff; the only unlisted-but-notable change is strengthening 3 pre-existing status-only tests to satisfy A9, which the generator-summary discloses and is not a hygiene violation",
+      "evidence": [
+        {"file": "tests/test_activities_api.py", "line": 100,
+         "quote": "assert response.json()[\"error\"][\"code\"] == \"VALIDATION_ERROR\""}
+      ]
+    }
+  ]
+}

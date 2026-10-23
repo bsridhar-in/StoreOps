@@ -6,3 +6,4 @@ flagged for refinement (see `.harness/agents/monitor.agent.md`).
 | run_id | sprint | verdict | iterations | escalated | est. tokens | failed checks (all iters) | drift-flagged skills |
 |---|---|---|---|---|---|---|---|
 | 20261023-1241-planogram-task-template | 1 | PASS | 1 | no | 78913 | none | none |
+| 20261023-1241-planogram-task-template | 2 | PASS | 1 | no | 65712 | none | none |

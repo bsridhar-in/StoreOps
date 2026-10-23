@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 from storeops.core.events import (
+    ActivitiesTemplateCloned,
     ActivityCreated,
     ActivityDeleted,
     ActivityUpdated,
@@ -28,6 +29,7 @@ class ReportService:
         bus.subscribe(ActivityDeleted, self._on_activity_deleted)
         bus.subscribe(ProgrammeCreated, self._on_programme_created)
         bus.subscribe(ProgrammeMemberAdded, self._on_programme_member_added)
+        bus.subscribe(ActivitiesTemplateCloned, self._on_activities_template_cloned)
 
     def get_store_metrics(self, store_id: str) -> StoreMetrics:
         return self._repo.get(store_id) or StoreMetrics(store_id=store_id)
@@ -70,4 +72,10 @@ class ReportService:
     def _on_programme_member_added(self, event: ProgrammeMemberAdded) -> None:
         metrics = self.get_store_metrics(event.store_id)
         metrics.programme_members_added += 1
+        self._repo.save(metrics)
+
+    def _on_activities_template_cloned(self, event: ActivitiesTemplateCloned) -> None:
+        metrics = self.get_store_metrics(event.store_id)
+        metrics.templates_applied += 1
+        metrics.activities_created += len(event.activity_ids)
         self._repo.save(metrics)

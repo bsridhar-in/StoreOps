@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-10-23T13:01:05+00:00",
+  "sprint": 2,
+  "mode": "sprint",
+  "results": [
+    {
+      "id": "A1",
+      "status": "PASS",
+      "summary": "ruff check: clean",
+      "command": "-m ruff check . --output-format=concise",
+      "findings": []
+    },
+    {
+      "id": "A2",
+      "status": "PASS",
+      "summary": "ruff format: clean",
+      "command": "ruff format --check .",
+      "findings": []
+    },
+    {
+      "id": "A3",
+      "status": "PASS",
+      "summary": "mypy --strict: clean",
+      "command": "-m mypy",
+      "findings": []
+    },
+    {
+      "id": "A4",
+      "status": "PASS",
+      "summary": "pytest: 64 passed in 2.32s",
+      "command": "pytest --cov",
+      "findings": []
+    },
+    {
+      "id": "A5",
+      "status": "PASS",
+      "summary": "import-linter: Contracts: 11 kept, 0 broken.",
+      "command": "lint-imports",
+      "findings": []
+    },
+    {
+      "id": "A6",
+      "status": "PASS",
+      "summary": "error contract: 0 raw raise(s) in service/routes",
+      "command": "ast scan",
+      "findings": []
+    },
+    {
+      "id": "A7",
+      "status": "PASS",
+      "summary": "coverage: service 99.0% (min 80), routes 94.7% (min 70), shared 98.6% (min 60), overall 98.5% (min 70)",
+      "command": "pytest --cov",
+      "findings": []
+    },
+    {
+      "id": "A8",
+      "status": "PASS",
+      "summary": "changed-file coverage: 6 file(s) checked",
+      "command": "pytest --cov",
+      "findings": []
+    },
+    {
+      "id": "A9",
+      "status": "PASS",
+      "summary": "assertion quality: 1 changed test file(s), 0 status-only test(s)",
+      "command": "ast scan",
+      "findings": []
+    },
+    {
+      "id": "A10",
+      "status": "PASS",
+      "summary": "AC traceability: 5/5 ACs referenced",
+      "command": "text scan",
+      "findings": []
+    },
+    {
+      "id": "A11",
+      "status": "PASS",
+      "summary": "event wiring: 0 EMIT, 1 HANDLE, 0 missing",
+      "command": "text scan",
+      "findings": []
+    },
+    {
+      "id": "A12",
+      "status": "PASS",
+      "summary": "protected files: 0 unapproved; approved = none",
+      "command": "git status",
+      "findings": []
+    }
+  ]
+}

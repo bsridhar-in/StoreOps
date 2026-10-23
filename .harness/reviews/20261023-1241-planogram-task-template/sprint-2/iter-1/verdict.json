@@ -1,0 +1,248 @@
+{
+  "sprint": 2,
+  "iteration": 1,
+  "verdict": "PASS",
+  "score": 100.0,
+  "dimensions": [
+    {
+      "id": "D1",
+      "name": "Architecture compliance",
+      "weight": 40,
+      "score": 100.0
+    },
+    {
+      "id": "D2",
+      "name": "Functional correctness and test quality",
+      "weight": 35,
+      "score": 100.0
+    },
+    {
+      "id": "D3",
+      "name": "Code quality and conventions",
+      "weight": 25,
+      "score": 100.0
+    }
+  ],
+  "hard_gates_failed": [],
+  "failed_checks": [],
+  "checks": [
+    {
+      "id": "A5",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "import-linter: Contracts: 11 kept, 0 broken."
+    },
+    {
+      "id": "A6",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 15,
+      "result": "PASS",
+      "reason": "error contract: 0 raw raise(s) in service/routes"
+    },
+    {
+      "id": "A11",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "event wiring: 0 EMIT, 1 HANDLE, 0 missing"
+    },
+    {
+      "id": "A12",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "protected files: 0 unapproved; approved = none"
+    },
+    {
+      "id": "L1",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "hard",
+      "points": 15,
+      "result": "PASS",
+      "reason": "reports reacts to ActivitiesTemplateCloned via bus.subscribe and only writes its own repository; no direct cross-module service call"
+    },
+    {
+      "id": "L2",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "new route handler only parses body/path, takes ctx, calls exactly one service method, and maps the result to the response model"
+    },
+    {
+      "id": "L3",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "the only reports change is _on_activities_template_cloned, which calls self.get_store_metrics (own reader) and self._repo.save (own repository); no mutating call into activities/programmes/staff and no event published back"
+    },
+    {
+      "id": "L4",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "no new `raise` statement is added in this diff; the route/service code paths exercised by the new endpoint reuse sprint-1 raises (NotFoundError/PROGRAMME_NOT_FOUND, ValidationError/UNKNOWN_TEMPLATE_KEY) which are out of scope for this sprint's diff"
+    },
+    {
+      "id": "L5",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "the new router is wired only in app.py (added to the router tuple); no new service/subscriber is constructed outside app.py; reports already held its own ReportService instance and only gained one more bus.subscribe line inside the existing register() method; no new cross-module Reader was introduced"
+    },
+    {
+      "id": "A4",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "pytest: 64 passed in 2.32s"
+    },
+    {
+      "id": "A7",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "coverage: service 99.0% (min 80), routes 94.7% (min 70), shared 98.6% (min 60), overall 98.5% (min 70)"
+    },
+    {
+      "id": "A8",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "changed-file coverage: 6 file(s) checked"
+    },
+    {
+      "id": "A9",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "assertion quality: 1 changed test file(s), 0 status-only test(s)"
+    },
+    {
+      "id": "A10",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "AC traceability: 5/5 ACs referenced"
+    },
+    {
+      "id": "L6",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "each AC's THEN clause is asserted on business state, not just status code"
+    },
+    {
+      "id": "L7",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "no-auth (AC-2.3), other-store isolation (AC-2.2), and invalid body/enum (AC-2.4) are each tested with an exact error code; no permission rule or partial-failure case applies to this single-shot clone endpoint"
+    },
+    {
+      "id": "L8",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 5,
+      "result": "PASS",
+      "reason": "every AC row in generator-summary.md cites a test that exists verbatim in tests/test_activities_api.py, and the files table lists the correct layer for each changed file"
+    },
+    {
+      "id": "L9",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 5,
+      "result": "PASS",
+      "reason": "implementation covers exactly the contract scope: TemplateCloneRequest/Out, department field, new router, reports counters; no alerts handling, no public reports endpoint, no RegionMetrics change was added, matching 'Out of scope'"
+    },
+    {
+      "id": "A1",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "ruff check: clean"
+    },
+    {
+      "id": "A2",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "ruff format: clean"
+    },
+    {
+      "id": "A3",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 25,
+      "result": "PASS",
+      "reason": "mypy --strict: clean"
+    },
+    {
+      "id": "L10",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "major",
+      "points": 25,
+      "result": "PASS",
+      "reason": "TemplateCloneRequest uses extra=forbid, TemplateCloneOut uses from_attributes=True, both follow *Request/*Out naming; new StoreMetrics field defaults to 0 like its siblings; reports handler scopes by event.store_id for every lookup/save"
+    },
+    {
+      "id": "L11",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "no new repository is introduced in this diff (reports/models.py and reports/service.py only; repository.py untouched)"
+    },
+    {
+      "id": "L12",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "no print/commented-out code/unlisted TODO in the diff; the only unlisted-but-notable change is strengthening 3 pre-existing status-only tests to satisfy A9, which the generator-summary discloses and is not a hygiene violation"
+    }
+  ],
+  "fallback": false,
+  "warnings": []
+}

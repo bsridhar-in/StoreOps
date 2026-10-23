@@ -4,10 +4,17 @@ from fastapi import APIRouter, Depends, Query, Request
 
 from storeops.core.auth import Auth
 from storeops.modules.activities.models import ActivityStatus
-from storeops.modules.activities.schemas import ActivityCreate, ActivityOut, ActivityUpdate
+from storeops.modules.activities.schemas import (
+    ActivityCreate,
+    ActivityOut,
+    ActivityUpdate,
+    TemplateCloneOut,
+    TemplateCloneRequest,
+)
 from storeops.modules.activities.service import ActivityService
 
 router = APIRouter(prefix="/api/activities", tags=["activities"])
+templates_router = APIRouter(tags=["activities"])
 
 
 def get_activity_service(request: Request) -> ActivityService:
@@ -49,3 +56,15 @@ async def update_activity(
 @router.delete("/{activity_id}", status_code=204)
 async def delete_activity(activity_id: str, ctx: Auth, service: Service) -> None:
     service.delete_activity(ctx, activity_id)
+
+
+@templates_router.post("/api/programmes/{programme_id}/templates", status_code=201)
+async def clone_template_into_programme(
+    programme_id: str, body: TemplateCloneRequest, ctx: Auth, service: Service
+) -> TemplateCloneOut:
+    activities = service.clone_template_into_programme(ctx, programme_id, body.template_key)
+    return TemplateCloneOut(
+        programme_id=programme_id,
+        template_key=body.template_key,
+        activities=[ActivityOut.model_validate(a) for a in activities],
+    )

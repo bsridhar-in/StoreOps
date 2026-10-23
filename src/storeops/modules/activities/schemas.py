@@ -42,3 +42,18 @@ class ActivityOut(BaseModel):
     created_by: str
     created_at: datetime
     updated_at: datetime
+    department: str | None = None
+
+
+class TemplateCloneRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    template_key: str = "standard_planogram_reset"
+
+
+class TemplateCloneOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    programme_id: str
+    template_key: str
+    activities: list[ActivityOut]

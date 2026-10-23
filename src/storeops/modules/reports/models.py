@@ -9,6 +9,7 @@ class StoreMetrics:
     activities_deleted: int = 0
     programmes_created: int = 0
     programme_members_added: int = 0
+    templates_applied: int = 0
 
 
 @dataclass(frozen=True)

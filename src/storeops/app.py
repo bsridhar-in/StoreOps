@@ -41,6 +41,7 @@ def create_app(*, staff_seed: Iterable[staff.StaffMember] = staff.DEMO_STAFF) ->
     register_error_handlers(app)
     for router in (
         activities.router,
+        activities.templates_router,
         programmes.router,
         staff.router,
         alerts.router,
