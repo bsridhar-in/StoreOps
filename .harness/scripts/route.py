@@ -141,12 +141,22 @@ def cmd_begin() -> int:
     )
 
 
-def _archive(sprint: int, iteration: int) -> None:
-    target = HISTORY / f"sprint-{sprint}" / f"iter-{iteration}"
-    target.mkdir(parents=True, exist_ok=True)
+def _archive(run_id: str, sprint: int, iteration: int) -> None:
+    """Copy this iteration's Generator/Evaluator output to its scratch and permanent homes.
+
+    The scratch copy (.harness/output/history/) is what the Generator and Monitor read
+    during the run. The permanent copy (.harness/reviews/<run_id>/) is the committed audit
+    trail - it survives the next `@planner` run clearing .harness/output/.
+    """
+    scratch = HISTORY / f"sprint-{sprint}" / f"iter-{iteration}"
+    permanent = REVIEWS / run_id / f"sprint-{sprint}" / f"iter-{iteration}"
+    scratch.mkdir(parents=True, exist_ok=True)
+    permanent.mkdir(parents=True, exist_ok=True)
     for name in ITERATION_FILES:
-        if (OUTPUT / name).is_file():
-            shutil.copy2(OUTPUT / name, target / name)
+        source = OUTPUT / name
+        if source.is_file():
+            shutil.copy2(source, scratch / name)
+            shutil.copy2(source, permanent / name)
 
 
 def _write_escalation(state: dict[str, Any], sprint: dict[str, Any], reason: str) -> Path:
@@ -186,8 +196,9 @@ def _write_escalation(state: dict[str, Any], sprint: dict[str, Any], reason: str
             for h in sprint["history"]
         ],
         "",
-        "Full feedback per iteration: `.harness/output/history/"
-        f"sprint-{sprint['n']}/iter-*/evaluator-feedback.md`",
+        "Full feedback per iteration (permanent copy; may not be committed until a sprint "
+        f"passes): `.harness/reviews/{state['run_id']}/sprint-{sprint['n']}/iter-*/"
+        "evaluator-feedback.md`",
         "",
         "## Developer options",
         "1. Fix the blocking issue by hand, then type `RESUME` (runs the Evaluator only).",
@@ -213,7 +224,7 @@ def cmd_decide() -> int:
         action = "RERUN_EVALUATOR" if sprint["evaluator_reruns"] == 1 else "RECOMPUTE_WITH_FALLBACK"
         return _emit({"action": action, "problems": verdict["problems"]})
 
-    _archive(sprint["n"], sprint["iterations"])
+    _archive(state["run_id"], sprint["n"], sprint["iterations"])
     previous = sprint["history"][-1] if sprint["history"] else None
     entry = {
         "iteration": sprint["iterations"],

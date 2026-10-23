@@ -13,9 +13,10 @@ flag which skill files are drifting (the same check failing repeatedly across sp
 2. `.harness/skills/grading-criteria/rubric.json` (maps each check id -> `owner_skill`)
 3. `.harness/output/state.json` and the stats:
    `.venv/Scripts/python .harness/scripts/route.py stats --sprint <N>`
-4. For every iteration K of the sprint:
-   `.harness/output/history/sprint-<N>/iter-<K>/evaluator-feedback.md`,
-   `generator-summary.md`, `verdict.json`
+4. For every iteration K of the sprint, either location has identical content -
+   `.harness/reviews/<run_id>/sprint-<N>/iter-<K>/` is the permanent copy, preferred since
+   `.harness/output/history/sprint-<N>/iter-<K>/` (same files) gets wiped by the next
+   `@planner` run: `evaluator-feedback.md`, `generator-summary.md`, `verdict.json`
 5. `.harness/output/escalation.md` if the sprint escalated
 6. `.harness/reviews/index.md` (cross-run trend table; create it from the template header if absent)
 7. Template: `.harness/templates/run-log.md`

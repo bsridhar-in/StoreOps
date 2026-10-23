@@ -39,11 +39,17 @@ Everything between approval and completion/escalation runs without asking.
 | Monitor | `monitor` | `.harness/agents/monitor.agent.md` | app-context, grading-criteria/rubric.json | `.harness/reviews/<run_id>/sprint-N-run-log.md`, `.harness/reviews/index.md` |
 
 All handoff files live in `.harness/output/` (git-ignored scratch) except Monitor output
-(`.harness/reviews/`, committed - the audit trail). `route.py init` additionally freezes a
-copy of the approved `spec.md` and every `sprint-N-contract.md` into
-`.harness/reviews/<run_id>/` the moment the run starts - a permanent record of exactly what
-was approved, alongside that run's run-logs. The agents keep reading/writing the working
-copies in `.harness/output/` throughout the loop; only the frozen copies live in `reviews/`.
+(`.harness/reviews/`, committed - the audit trail). `route.py` also mirrors every stage's
+output into `.harness/reviews/<run_id>/` as it's produced, so the full record survives even
+though `.harness/output/` is wiped by the next `@planner` run:
+- `init` freezes the approved `spec.md` and every `sprint-N-contract.md` into
+  `.harness/reviews/<run_id>/` the moment the run starts.
+- `decide` mirrors each scored iteration's `generator-summary.md`, `evaluator-feedback.md`,
+  `evaluator-checks.json`, `checks.json`/`checks.md` and `verdict.json` into
+  `.harness/reviews/<run_id>/sprint-N/iter-K/`.
+
+The agents keep reading/writing only the working copies in `.harness/output/`; they never
+write to `reviews/` themselves (except the Monitor's own run-log).
 
 Invoke each agent with the Agent tool, `subagent_type` = the subagent name, and a prompt that
 contains only the parameters, e.g.:
@@ -145,6 +151,11 @@ stop. Do not attempt fixes yourself, do not commit the escalated sprint.
   message (<= 15 lines). Do not open diffs, feedback, or code during the loop.
 - **Resumable.** All loop state is in `.harness/output/state.json` + `history/`; after `/clear`
   the developer types `CONTINUE` and you resume from the state file.
+- **Permanently audited, not just resumable.** `route.py` mirrors the same per-iteration
+  `generator-summary.md`/`evaluator-feedback.md`/`verdict.json` (plus the approved `spec.md`
+  and sprint contracts, once at `init`) into `.harness/reviews/<run_id>/`, committed with the
+  sprint. `.harness/output/` stays scratch and gets cleared by the next `@planner` run;
+  `.harness/reviews/` does not.
 
 ## 7. Relationship to CI/CD
 

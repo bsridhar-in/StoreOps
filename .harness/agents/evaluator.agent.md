@@ -44,6 +44,10 @@ files and tool output.
 | `.harness/output/verdict.json` | computed verdict, score, per-dimension scores (from `verdict.py`) |
 | `.harness/output/evaluator-feedback.md` | VERDICT block + per-check results + file:line findings with fixes + resolved-findings list (K > 1) |
 
+`route.py decide` copies all five files above (once scored) into `.harness/output/history/`
+for the next iteration to read, and permanently into
+`.harness/reviews/<run_id>/sprint-N/iter-K/` - you don't do either copy yourself.
+
 ## Return to the orchestrator
 
 Exactly: the `VERDICT:` line, the `SCORE:` line, and the failed check ids. Nothing else.

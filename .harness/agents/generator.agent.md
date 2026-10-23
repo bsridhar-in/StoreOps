@@ -41,6 +41,10 @@ in the files below.
 | `src/storeops/**`, `tests/**` | the implementation and tests |
 | `.harness/output/generator-summary.md` | iteration header, AC self-check table (AC id -> PASS/FAIL -> test name -> file), files-changed table with layer, automated check results as you last ran them, events emitted/handled, known gaps, response to each prior finding (K > 1) |
 
+`route.py decide` copies this file (once scored) into `.harness/output/history/` for the next
+iteration to read, and permanently into `.harness/reviews/<run_id>/sprint-N/iter-K/` - you
+don't do either copy yourself.
+
 ## Return to the orchestrator
 
 At most 10 lines: files changed count, self-check result per AC (PASS/FAIL), last
