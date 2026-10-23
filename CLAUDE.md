@@ -39,7 +39,11 @@ Everything between approval and completion/escalation runs without asking.
 | Monitor | `monitor` | `.harness/agents/monitor.agent.md` | app-context, grading-criteria/rubric.json | `.harness/reviews/<run_id>/sprint-N-run-log.md`, `.harness/reviews/index.md` |
 
 All handoff files live in `.harness/output/` (git-ignored scratch) except Monitor output
-(`.harness/reviews/`, committed - the audit trail).
+(`.harness/reviews/`, committed - the audit trail). `route.py init` additionally freezes a
+copy of the approved `spec.md` and every `sprint-N-contract.md` into
+`.harness/reviews/<run_id>/` the moment the run starts - a permanent record of exactly what
+was approved, alongside that run's run-logs. The agents keep reading/writing the working
+copies in `.harness/output/` throughout the loop; only the frozen copies live in `reviews/`.
 
 Invoke each agent with the Agent tool, `subagent_type` = the subagent name, and a prompt that
 contains only the parameters, e.g.:
@@ -66,7 +70,10 @@ Python is `.venv/Scripts/python` (Windows) - `python` on Linux/macOS. `H=.harnes
 
 5. Replace `STATUS: AWAITING APPROVAL` with `STATUS: APPROVED <ISO timestamp>` in `spec.md`.
 6. `git switch -c harness/<slug>` (slug from the spec) unless already on it.
-7. `python $H/route.py init --feature "<prompt>" --slug <slug> --sprints <N>`.
+7. `python $H/route.py init --feature "<prompt>" --slug <slug> --sprints <N>` - this also
+   copies `spec.md` and every sprint contract into `.harness/reviews/<run_id>/` (uncommitted
+   until the first sprint's commit; if the run later escalates before any sprint passes,
+   these copies stay uncommitted on the branch until the developer resolves it).
 
 ### Phase C - Generator/Evaluator loop (autonomous)
 

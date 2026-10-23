@@ -43,6 +43,10 @@ flag which skill files are drifting (the same check failing repeatedly across sp
 | `.harness/reviews/<run_id>/sprint-<N>-run-log.md` | sprint id, verdict, iterations used, escalation flag, estimated token cost, iteration table, quality trend notes, skill drift flags + suggested skill edits |
 | `.harness/reviews/index.md` | one appended row per sprint (never rewrite earlier rows) |
 
+`.harness/reviews/<run_id>/` already contains `spec.md` and every `sprint-N-contract.md`,
+frozen there by `route.py init` at the start of the run - your run-log sits alongside them as
+the permanent record of that sprint.
+
 ## Return to the orchestrator
 
 One line: `run-log written: <path>; drift-flagged: <skills or none>`.

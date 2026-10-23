@@ -27,6 +27,7 @@ from typing import Any
 from harness_common import (
     HARNESS,
     OUTPUT,
+    REVIEWS,
     ROOT,
     changed_files,
     config,
@@ -95,7 +96,25 @@ def cmd_init(feature: str, slug: str, sprints: int) -> int:
     if missing:
         sys.exit(f"missing sprint contract(s): {missing}")
     write_json(STATE, state)
-    return _emit({"action": "INITIALISED", "run_id": run_id, "sprints": sprints})
+    archived = _archive_spec_and_contracts(run_id, sprints)
+    return _emit(
+        {"action": "INITIALISED", "run_id": run_id, "sprints": sprints, "archived": archived}
+    )
+
+
+def _archive_spec_and_contracts(run_id: str, sprints: int) -> list[str]:
+    """Freeze the approved spec and sprint contracts into the committed audit trail.
+
+    Called once, at `init` time (after approval mints the run id) - .harness/output/ stays
+    scratch for the agents' working copies, but .harness/reviews/<run_id>/ keeps a permanent,
+    point-in-time record alongside the Monitor's run-logs for the same run.
+    """
+    target = REVIEWS / run_id
+    target.mkdir(parents=True, exist_ok=True)
+    sources = [OUTPUT / "spec.md", *(contract_path(n) for n in range(1, sprints + 1))]
+    for source in sources:
+        shutil.copy2(source, target / source.name)
+    return [p.relative_to(ROOT).as_posix() for p in sources]
 
 
 def cmd_begin() -> int:
