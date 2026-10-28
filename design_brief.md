@@ -1,4 +1,4 @@
-# The Harness Design Brief
+# The Harness Design Brief 
 
 StoreOps development harness — architectural intent, governance design, and the strategy for
 turning variable LLM output into deterministic accept/reject decisions. Written against the
