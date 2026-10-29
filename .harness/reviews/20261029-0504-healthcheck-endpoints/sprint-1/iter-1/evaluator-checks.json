@@ -1,0 +1,246 @@
+{
+  "sprint": 1,
+  "iteration": 1,
+  "checks": [
+    {
+      "id": "L1",
+      "result": "PASS",
+      "reason": "No cross-module state change or subscriber event behavior is introduced.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 53,
+          "quote": "@app.get(\"/health/live\"...)\n@app.get(\"/health/ready\"...)",
+          "fix": ""
+        },
+        {
+          "file": ".harness/output/sprint-1-contract.md",
+          "line": 29,
+          "quote": "- None",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "result": "PASS",
+      "reason": "The health handlers perform only HTTP response mapping and composition-state readiness checks requested by the sprint contract.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 53,
+          "quote": "@app.get(\"/health/live\", response_model=dict[str, str])",
+          "fix": ""
+        },
+        {
+          "file": "src/storeops/app.py",
+          "line": 57,
+          "quote": "async def health_ready(response: Response) -> dict[str, str]:",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "result": "PASS",
+      "reason": "The reports module is unchanged and no reports write behavior was added.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 43,
+          "quote": "app.state.report_service = report_service",
+          "fix": ""
+        },
+        {
+          "file": ".harness/output/sprint-1-contract.md",
+          "line": 3,
+          "quote": "- Modules: `core`, composition root",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "result": "PASS",
+      "reason": "No health-route failure raise is added; the readiness failure is represented by the required 503 response status.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 58,
+          "quote": "async def health_ready(response: Response) -> dict[str, str]:",
+          "fix": ""
+        },
+        {
+          "file": "src/storeops/app.py",
+          "line": 61,
+          "quote": "response.status_code = 503",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "result": "PASS",
+      "reason": "Existing services remain constructed in the composition root, and no new cross-module Reader or protected-file boundary change is introduced.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 29,
+          "quote": "programme_service = programmes.ProgrammeService(",
+          "fix": ""
+        },
+        {
+          "file": "src/storeops/app.py",
+          "line": 38,
+          "quote": "app.state.event_bus = bus",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "result": "PASS",
+      "reason": "Each AC has a dedicated test that asserts its response body and state behavior, not status alone.",
+      "evidence": [
+        {
+          "file": "tests/test_health_api.py",
+          "line": 10,
+          "quote": "\"\"\"AC-1.1, AC-1.4: liveness is public and returns exactly the alive payload.\"\"\"",
+          "fix": ""
+        },
+        {
+          "file": "tests/test_health_api.py",
+          "line": 19,
+          "quote": "\"\"\"AC-1.2, AC-1.4: readiness reports composition without tenant data or auth.\"\"\"",
+          "fix": ""
+        },
+        {
+          "file": "tests/test_health_api.py",
+          "line": 31,
+          "quote": "\"\"\"AC-1.3: a missing required service yields 503 while liveness remains 200.\"\"\"",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L7",
+      "result": "PASS",
+      "reason": "No-auth is tested for both probes, missing composition state is tested with exact 503/not_ready behavior, and inapplicable body/permission/partial-failure paths do not apply to these GET probes.",
+      "evidence": [
+        {
+          "file": "tests/test_health_api.py",
+          "line": 10,
+          "quote": "async def test_liveness_requires_no_identity_headers(client: httpx.AsyncClient) -> None:",
+          "fix": ""
+        },
+        {
+          "file": "tests/test_health_api.py",
+          "line": 31,
+          "quote": "delattr(app.state, \"alert_service\")",
+          "fix": ""
+        },
+        {
+          "file": "tests/test_health_api.py",
+          "line": 40,
+          "quote": "assert ready_response.json() == {\"status\": \"not_ready\"}",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L8",
+      "result": "PASS",
+      "reason": "The generator summary cites existing tests for every AC and lists the changed implementation and test layers accurately.",
+      "evidence": [
+        {
+          "file": ".harness/output/generator-summary.md",
+          "line": 5,
+          "quote": "| AC-1.1 | PASS |",
+          "fix": ""
+        },
+        {
+          "file": ".harness/output/generator-summary.md",
+          "line": 12,
+          "quote": "| `src/storeops/app.py` | composition root |",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L9",
+      "result": "PASS",
+      "reason": "The implementation adds only the two health routes and composition readiness check required by the four ACs.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 53,
+          "quote": "@app.get(\"/health/live\", response_model=dict[str, str])",
+          "fix": ""
+        },
+        {
+          "file": "src/storeops/app.py",
+          "line": 57,
+          "quote": "@app.get(\"/health/ready\", response_model=dict[str, str])",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L10",
+      "result": "PASS",
+      "reason": "No new Pydantic models or repository queries were added; both routes expose only fixed health payloads and readiness checks app composition state without tenant data.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 45,
+          "quote": "required_service_names = (",
+          "fix": ""
+        },
+        {
+          "file": "src/storeops/app.py",
+          "line": 55,
+          "quote": "return {\"status\": \"alive\"}",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L11",
+      "result": "PASS",
+      "reason": "No new repository is introduced.",
+      "evidence": [
+        {
+          "file": ".harness/output/sprint-1-contract.md",
+          "line": 3,
+          "quote": "- Modules: `core`, composition root",
+          "fix": ""
+        },
+        {
+          "file": "src/storeops/app.py",
+          "line": 53,
+          "quote": "@app.get(\"/health/live\"...)\n@app.get(\"/health/ready\"...)",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "id": "L12",
+      "result": "PASS",
+      "reason": "No print, TODO, commented-out code, or unused helper is present in the changed implementation and test files.",
+      "evidence": [
+        {
+          "file": "src/storeops/app.py",
+          "line": 45,
+          "quote": "required_service_names = (",
+          "fix": ""
+        },
+        {
+          "file": "tests/test_health_api.py",
+          "line": 7,
+          "quote": "pytestmark = pytest.mark.anyio",
+          "fix": ""
+        }
+      ]
+    }
+  ]
+}

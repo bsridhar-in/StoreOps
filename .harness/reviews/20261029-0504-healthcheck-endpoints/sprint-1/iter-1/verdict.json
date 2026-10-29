@@ -1,0 +1,248 @@
+{
+  "sprint": 1,
+  "iteration": 1,
+  "verdict": "PASS",
+  "score": 100.0,
+  "dimensions": [
+    {
+      "id": "D1",
+      "name": "Architecture compliance",
+      "weight": 40,
+      "score": 100.0
+    },
+    {
+      "id": "D2",
+      "name": "Functional correctness and test quality",
+      "weight": 35,
+      "score": 100.0
+    },
+    {
+      "id": "D3",
+      "name": "Code quality and conventions",
+      "weight": 25,
+      "score": 100.0
+    }
+  ],
+  "hard_gates_failed": [],
+  "failed_checks": [],
+  "checks": [
+    {
+      "id": "A5",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "import-linter: Contracts: 11 kept, 0 broken."
+    },
+    {
+      "id": "A6",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 15,
+      "result": "PASS",
+      "reason": "error contract: 0 raw raise(s) in service/routes"
+    },
+    {
+      "id": "A11",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "event wiring: contract declares no EMIT/HANDLE (n/a)"
+    },
+    {
+      "id": "A12",
+      "dimension": "D1",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "protected files: 0 unapproved; approved = none"
+    },
+    {
+      "id": "L1",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "hard",
+      "points": 15,
+      "result": "PASS",
+      "reason": "No cross-module state change or subscriber event behavior is introduced."
+    },
+    {
+      "id": "L2",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "The health handlers perform only HTTP response mapping and composition-state readiness checks requested by the sprint contract."
+    },
+    {
+      "id": "L3",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "The reports module is unchanged and no reports write behavior was added."
+    },
+    {
+      "id": "L4",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No health-route failure raise is added; the readiness failure is represented by the required 503 response status."
+    },
+    {
+      "id": "L5",
+      "dimension": "D1",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "Existing services remain constructed in the composition root, and no new cross-module Reader or protected-file boundary change is introduced."
+    },
+    {
+      "id": "A4",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "pytest: 94 passed in 1.58s"
+    },
+    {
+      "id": "A7",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "coverage: service 99.2% (min 80), routes 95.3% (min 70), shared 98.7% (min 60), overall 98.6% (min 70)"
+    },
+    {
+      "id": "A8",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "changed-file coverage: 1 file(s) checked"
+    },
+    {
+      "id": "A9",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "assertion quality: 1 changed test file(s), 0 status-only test(s)"
+    },
+    {
+      "id": "A10",
+      "dimension": "D2",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "AC traceability: 4/4 ACs referenced"
+    },
+    {
+      "id": "L6",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "Each AC has a dedicated test that asserts its response body and state behavior, not status alone."
+    },
+    {
+      "id": "L7",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No-auth is tested for both probes, missing composition state is tested with exact 503/not_ready behavior, and inapplicable body/permission/partial-failure paths do not apply to these GET probes."
+    },
+    {
+      "id": "L8",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 5,
+      "result": "PASS",
+      "reason": "The generator summary cites existing tests for every AC and lists the changed implementation and test layers accurately."
+    },
+    {
+      "id": "L9",
+      "dimension": "D2",
+      "type": "llm",
+      "severity": "major",
+      "points": 5,
+      "result": "PASS",
+      "reason": "The implementation adds only the two health routes and composition readiness check required by the four ACs."
+    },
+    {
+      "id": "A1",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 20,
+      "result": "PASS",
+      "reason": "ruff check: clean"
+    },
+    {
+      "id": "A2",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 10,
+      "result": "PASS",
+      "reason": "ruff format: clean"
+    },
+    {
+      "id": "A3",
+      "dimension": "D3",
+      "type": "automated",
+      "severity": "hard",
+      "points": 25,
+      "result": "PASS",
+      "reason": "mypy --strict: clean"
+    },
+    {
+      "id": "L10",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "major",
+      "points": 25,
+      "result": "PASS",
+      "reason": "No new Pydantic models or repository queries were added; both routes expose only fixed health payloads and readiness checks app composition state without tenant data."
+    },
+    {
+      "id": "L11",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No new repository is introduced."
+    },
+    {
+      "id": "L12",
+      "dimension": "D3",
+      "type": "llm",
+      "severity": "minor",
+      "points": 10,
+      "result": "PASS",
+      "reason": "No print, TODO, commented-out code, or unused helper is present in the changed implementation and test files."
+    }
+  ],
+  "fallback": false,
+  "warnings": []
+}
