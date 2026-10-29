@@ -12,7 +12,7 @@ python -m venv .venv
 .venv/Scripts/activate          # Windows  (source .venv/bin/activate on macOS/Linux)
 pip install -e ".[dev]"
 
-uvicorn storeops.main:app --reload   # http://127.0.0.1:8000/docs
+uvicorn storeops.main:app --reload   # http://127.0.0.1:8080/docs
 ```
 
 Quality gates:
