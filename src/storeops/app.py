@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 
 from storeops import __version__
 from storeops.core.events import EventBus
@@ -41,6 +41,25 @@ def create_app(*, staff_seed: Iterable[staff.StaffMember] = staff.DEMO_STAFF) ->
     app.state.activity_service = activity_service
     app.state.alert_service = alert_service
     app.state.report_service = report_service
+
+    required_service_names = (
+        "staff_service",
+        "programme_service",
+        "activity_service",
+        "alert_service",
+        "report_service",
+    )
+
+    @app.get("/health/live", response_model=dict[str, str])
+    async def health_live() -> dict[str, str]:
+        return {"status": "alive"}
+
+    @app.get("/health/ready", response_model=dict[str, str])
+    async def health_ready(response: Response) -> dict[str, str]:
+        if all(hasattr(app.state, name) for name in required_service_names):
+            return {"status": "ready"}
+        response.status_code = 503
+        return {"status": "not_ready"}
 
     register_error_handlers(app)
     for router in (

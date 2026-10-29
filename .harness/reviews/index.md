@@ -10,3 +10,4 @@ flagged for refinement (see `.harness/agents/monitor.agent.md`).
 | 20261021-1057-shift-handover-bulk-status | 1 | PASS | 1 | no | 92258 | none | none |
 | 20261021-1057-shift-handover-bulk-status | 2 | PASS | 1 | no | 65121 | none | none |
 | 20261021-1057-shift-handover-bulk-status | 3 | PASS | 1 | no | 63394 | none | none |
+| 20261029-0504-healthcheck-endpoints | 1 | PASS | 1 | no | 63951 | none | none |
