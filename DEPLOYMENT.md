@@ -257,6 +257,43 @@ aws ecs update-service \
   --region us-east-1
 ```
 
+# Application Endpoints
+
+AWS Cloud ECS Deployment Endpoint:
+  http://54.144.250.226:8080/docs#/
+
+# Local Testing
+
+# Create Standalone Activity
+curl -X POST http://127.0.0.1:8000/api/activities -H "Content-Type: application/json" -H "X-User-Id: staff-001" -H "X-Store-Id: store-001" -d "{\"title\":\"Restock aisle 4\"}"
+
+
+# Create an activity assigned to staff-002
+curl -X POST http://127.0.0.1:8000/api/activities -H "Content-Type: application/json" -H "X-User-Id: staff-001" -H "X-Store-Id: store-001" -d "{\"title\":\"Restock aisle 4\",\"priority\":\"high\",\"assignee_id\":\"staff-002\"}"
+
+# List Activities
+curl -X DELETE http://127.0.0.1:8000/api/activities/<id> -H "X-User-Id: staff-002" -H "X-Store-Id: store-001"
+
+
+# Check Alerts of "staff-02"
+curl http://127.0.0.1:8000/api/alerts -H "X-User-Id: staff-002" -H "X-Store-Id: store-001"
+
+
+# Activities linked to a programme can then be listed with the filter:
+curl "http://127.0.0.1:8000/api/activities?programme_id=<programme-id>" -H "X-User-Id: staff-001" -H "X-Store-Id: store-001"
+
+
+
+# Create Programme as Manager
+curl -X POST http://127.0.0.1:8000/api/programmes -H "Content-Type: application/json" -H "X-User-Id: staff-mgr-1" -H "X-Store-Id: store-001" -H "X-Role: store_manager" -d "{\"name\":\"Summer reset\"}"
+
+# Delete Staff member who is not a Owner
+curl -X DELETE http://127.0.0.1:8000/api/activities/<id> -H "X-User-Id: staff-002" -H "X-Store-Id: store-001"
+
+# To change the status, use PATCH after the activity exists:
+curl -X PATCH http://127.0.0.1:8000/api/activities/<id> -H "Content-Type: application/json" -H "X-User-Id: staff-001" -H "X-Store-Id: store-001" -d "{\"status\":\"in_progress\"}"
+
+
 ## Troubleshooting
 
 ### ECS service will not become stable

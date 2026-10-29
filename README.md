@@ -5,6 +5,13 @@ REST API for retail store operations management, built with FastAPI. This is a *
 implementation**: the structure, contracts, and boundary rules are in place, storage is
 in-memory, and business logic is minimal.
 
+
+### Github Repo
+https://github.com/bsridhar-in/StoreOps
+
+### AWS ECS Cloud Deployment
+http://54.144.250.226:8080/docs/
+
 ## Quick start
 
 ```bash
