@@ -1,6 +1,6 @@
 # StoreOps API (Python)
 
- 
+ Testing
 REST API for retail store operations management, built with FastAPI. This is a **stub
 implementation**: the structure, contracts, and boundary rules are in place, storage is
 in-memory, and business logic is minimal.

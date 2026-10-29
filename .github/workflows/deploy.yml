@@ -17,10 +17,11 @@ concurrency:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: storeops-repository
-  ECS_CLUSTER: storeops-cluster
+  ECS_CLUSTER: ambitious-wolf-thfgx9
   ECS_SERVICE: storeops-taskdefinition-service
   TASK_DEFINITION: .aws/task-definition.json
   CONTAINER_NAME: storeops
+
 
 jobs:
   deploy:
